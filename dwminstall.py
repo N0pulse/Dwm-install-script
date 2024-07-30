@@ -66,7 +66,7 @@ def main():
     print("REBOOT SYSTEM OR LOG OUT OF USER FOR CHANGES TO TAKE EFFECT!!")
 
 
-def install_dep(bg, base_dwm=False, verbose=False):
+def install_dep(bg, base_dwm=False, verbose=False, autoconfirm=True):
     # Required dependencies
     pack_dep = [
         "base-devel", "git", "vim", "xorg-server", "xorg-xinit", 
@@ -74,6 +74,9 @@ def install_dep(bg, base_dwm=False, verbose=False):
     ]
     # Pacman install command
     pacman_args = ["pacman", "-Sy"]
+
+    if autoconfirm:
+        pacman_args.append("--noconfirm")
     
     # Check for optional dependency flags
     if bg:
@@ -113,17 +116,18 @@ def clone_repos(base_dwm=False, verbose=False):
             "https://github.com/N0pulse/st", "https://git.suckless.org/dmenu"
         ]
     
-    # Make Suckless folder in user's home directory and check for success
-    try:
-        p1 = subprocess.run(["mkdir", "Suckless"], cwd=pathlib.Path.home())
-    except (subprocess.SubprocessError, BaseException, KeyboardInterrupt) as error:
-        print(error)
-        sys.exit(1337)
-    if p1.returncode != 0:
-        print("An error occurred: failed to make Suckless folder in user's home directory")
-        if verbose:
-            print(f"Error code: {p1.returncode}")
-        sys.exit(p1.returncode)
+    if not pathlib.Path(f"{pathlib.Path.home()}/Suckless").exists():
+        # Make Suckless folder in user's home directory and check for success
+        try:
+            p1 = subprocess.run(["mkdir", "Suckless"], cwd=pathlib.Path.home())
+        except (subprocess.SubprocessError, BaseException, KeyboardInterrupt) as error:
+            print(error)
+            sys.exit(1337)
+        if p1.returncode != 0:
+            print("An error occurred: failed to make Suckless folder in user's home directory")
+            if verbose:
+                print(f"Error code: {p1.returncode}")
+            sys.exit(p1.returncode)
 
     # clone each git repository to the Suckless folder and check for success
     for link in git_repos:
@@ -147,7 +151,7 @@ def clone_repos(base_dwm=False, verbose=False):
 
 def change_terminal(base_dwm=True, verbose=False):
     # If a custom dwm was downloaded return 0
-    if base_dwm:
+    if not base_dwm:
         return 0
     
     # Replace default shell with st using sed then write it to config.def.h using buffer
