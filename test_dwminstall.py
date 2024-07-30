@@ -25,6 +25,9 @@ def test_clone_repos():
     assert clone_repos(base_dwm=True, verbose=False) == 2
 #    assert clone_repos(base_dwm=True, verbose=True) == 2
 
+# if return == 1 custom dwm installed with no problems and function executed flawlessly
+# if return == 2 base dwm install was flawless 
+
 
 # For this test up to two tests can be ran at a time if base_dwm=False
 # is one of them else only one at a time as sed will not find text to change
@@ -33,6 +36,10 @@ def test_change_terminal():
     assert change_terminal(base_dwm=False) == 0
 #    assert change_terminal(verbose=True) == True
     assert change_terminal() == True
+
+# if return == 0 Failed to change default terminal from /bin/sh to usr/local/bin/st
+# if return == True Function executed flawlessly
+
 
 def test_compile():
     assert compile(verbose=True) == True
